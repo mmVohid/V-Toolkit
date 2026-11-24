@@ -10,7 +10,8 @@ rem    lib\init.ps1         log papkasi, eski loglarni tozalash, sana
 rem    modules\*.bat/.ps1   modullar: .bat = UI + LANG_UZ/LANG_EN, .ps1 = mantiq
 rem
 rem  CLI:  TOOLKIT.bat [buyruq] [--lang UZ|EN] [--no-color]
-rem        buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports about
+rem        buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports env about
+rem        env:       TOOLKIT.bat env [papka] [--ci]   (--ci: chiqish kodi 0/1, rangsiz, savolsiz)
 rem
 rem  Matn qoidasi: ASCII; matn ichida  !  %  "  bo'lmasin.
 rem  Fayl CRLF qator oxiri bilan saqlanishi shart (.gitattributes).
@@ -20,10 +21,13 @@ set "TK_ROOT=%~dp0"
 if "%TK_ROOT:~-1%"=="\" set "TK_ROOT=%TK_ROOT:~0,-1%"
 set "TK_SELF=%~f0"
 set "TK_C=%TK_ROOT%\lib\core.bat"
-set "TK_VER=2.0.0"
+set "TK_VER=2.1.0"
+set "TK_CWD=%CD%"
 set "TK_CMD="
 set "TK_LANG_ARG="
 set "TK_ONESHOT="
+set "TK_ARG="
+set "TK_CI="
 
 rem ----------------------------------------------------------------------
 rem  Argumentlar (delayed expansion o'chiq: yo'lda '!' bo'lsa ham xavfsiz)
@@ -32,7 +36,9 @@ rem ----------------------------------------------------------------------
 if "%~1"=="" goto ARGS_DONE
 if /i "%~1"=="--no-color" set "NO_COLOR=1" & shift & goto PARSE_ARGS
 if /i "%~1"=="--lang" set "TK_LANG_ARG=%~2" & shift & shift & goto PARSE_ARGS
-if not defined TK_CMD set "TK_CMD=%~1"
+if /i "%~1"=="--ci" set "TK_CI=1" & set "NO_COLOR=1" & shift & goto PARSE_ARGS
+if not defined TK_CMD set "TK_CMD=%~1" & shift & goto PARSE_ARGS
+if not defined TK_ARG set "TK_ARG=%~1"
 shift
 goto PARSE_ARGS
 :ARGS_DONE
@@ -40,7 +46,7 @@ goto PARSE_ARGS
 setlocal EnableExtensions EnableDelayedExpansion
 chcp 65001 >nul
 title Vohid TOOLKIT v!TK_VER!
-mode con cols=84
+mode con cols=84 >nul 2>&1
 pushd "!TK_ROOT!" 2>nul
 
 if not exist "!TK_C!" (
@@ -145,6 +151,7 @@ echo.
 echo     %C_D%!T_G3!%C_0%
 echo     %C_G%[9]%C_0%   !T_M9!
 echo     %C_G%[10]%C_0%  !T_M10!
+echo     %C_G%[11]%C_0%  !T_M11!
 echo.
 echo   %C_D%------------------------------------------------------------------------%C_0%
 echo     %C_C%[A]%C_0% !T_MA!      %C_C%[L]%C_0% !T_ML!      %C_C%[0]%C_0% !T_M0!
@@ -167,6 +174,7 @@ if "!choice!"=="7" goto T_BIOS
 if "!choice!"=="8" goto T_OFF
 if "!choice!"=="9" goto T_WG
 if "!choice!"=="10" goto T_PORT
+if "!choice!"=="11" goto T_DOTENV
 if /i "!choice!"=="a" goto T_ABOUT
 if /i "!choice!"=="l" goto T_LANG
 if "!choice!"=="0" goto QUIT
@@ -192,6 +200,7 @@ if /i "!TK_CMD!"=="bios" goto T_BIOS
 if /i "!TK_CMD!"=="shutdown" goto T_OFF
 if /i "!TK_CMD!"=="winget" goto T_WG
 if /i "!TK_CMD!"=="ports" goto T_PORT
+if /i "!TK_CMD!"=="env" goto T_DOTENV
 if /i "!TK_CMD!"=="about" goto T_ABOUT
 echo.
 call "!TK_C!" :ERR "!T_UNKNOWN! !TK_CMD!"
@@ -345,6 +354,24 @@ call "!TK_C!" :RELAUNCH ports
 goto PAUSE_BACK
 
 rem ======================================================================
+rem  [11] .env tekshiruvchi  (modules\env.bat + env.ps1)
+rem  Chiqish kodi: 0 = toza, 1 = muammo bor, 2 = kirish xatosi
+rem  CLI (oneshot) rejimda shu kod bilan chiqiladi.
+rem ======================================================================
+:T_DOTENV
+call "!TK_ROOT!\modules\env.bat"
+set "RC=!errorlevel!"
+set "TK_MOD=main"
+if defined TK_ONESHOT (
+    call "!TK_C!" :LOG INFO "exit rc=!RC!"
+    popd
+    exit /b !RC!
+)
+if "!RC!"=="0" goto BACK
+if "!RC!"=="1" goto BACK
+goto PAUSE_BACK
+
+rem ======================================================================
 rem  Til tanlash
 rem ======================================================================
 :T_LANG
@@ -415,13 +442,14 @@ set "T_M7=BIOS (UEFI) sozlamalariga qayta yoqish"
 set "T_M8=Kompyuterni o'chirish - 30 soniyadan keyin"
 set "T_M9=Barcha dasturlarni yangilash (Winget)"
 set "T_M10=Portlar va lokal servislar"
+set "T_M11=.env tekshiruvchi (.env.example bilan solishtirish)"
 set "T_MA=Haqida"
 set "T_ML=Til"
 set "T_M0=Chiqish"
 set "T_ADMIN_NOTE=Administrator huquqi kerak (kerak bo'lganda so'raladi)."
 set "T_INVALID=Noto'g'ri buyruq. Qayta urinib ko'ring."
 set "T_UNKNOWN=Noma'lum buyruq:"
-set "T_USAGE=Buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports about   Parametr: --lang UZ/EN  --no-color"
+set "T_USAGE=Buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports env about   Parametr: --lang UZ/EN  --no-color  --ci"
 set "T_SCAN1=DISM: tizim obrazini tiklash..."
 set "T_SCAN2=SFC: Windows fayllarini tekshirish..."
 set "T_SCAN_DONE=Skanerlash va tiklash yakunlandi."
@@ -461,13 +489,14 @@ set "T_M7=Reboot to BIOS (UEFI)"
 set "T_M8=Shutdown computer - in 30 seconds"
 set "T_M9=Update all software (Winget)"
 set "T_M10=Ports and local services"
+set "T_M11=.env checker (compare with .env.example)"
 set "T_MA=About"
 set "T_ML=Language"
 set "T_M0=Exit"
 set "T_ADMIN_NOTE=Requires administrator rights (asked when needed)."
 set "T_INVALID=Invalid command. Please try again."
 set "T_UNKNOWN=Unknown command:"
-set "T_USAGE=Commands: cmd ps path devmgr scan activation bios shutdown winget ports about   Options: --lang UZ/EN  --no-color"
+set "T_USAGE=Commands: cmd ps path devmgr scan activation bios shutdown winget ports env about   Options: --lang UZ/EN  --no-color  --ci"
 set "T_SCAN1=DISM: repairing system image..."
 set "T_SCAN2=SFC: scanning Windows system files..."
 set "T_SCAN_DONE=Scan and repair completed."

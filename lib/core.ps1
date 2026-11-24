@@ -119,3 +119,10 @@ function Wait-TkKey {
     Write-Host ('  ' + $script:Col.Dim + (Get-TkText 'PRESS') + $script:Col.Reset)
     try { [void][Console]::ReadKey($true) } catch { }
 }
+
+# Matnni qat'iy kenglikka keltiradi (uzun bo'lsa '~' bilan qisqartiradi)
+function Format-Fit([string]$Text, [int]$Width) {
+    if ($null -eq $Text) { $Text = '' }
+    if ($Text.Length -gt $Width) { return $Text.Substring(0, $Width - 1) + '~' }
+    return $Text.PadRight($Width)
+}

@@ -47,12 +47,6 @@ function ConvertTo-TkPort([string]$Text) {
     return $n
 }
 
-function Format-Fit([string]$Text, [int]$Width) {
-    if ($null -eq $Text) { $Text = '' }
-    if ($Text.Length -gt $Width) { return $Text.Substring(0, $Width - 1) + '~' }
-    return $Text.PadRight($Width)
-}
-
 # Standart ro'yxat + %LOCALAPPDATA%\VohidToolkit\ports.txt  (qator: PORT=Nom, # izoh)
 function Get-WatchList {
     $list = New-Object System.Collections.ArrayList
