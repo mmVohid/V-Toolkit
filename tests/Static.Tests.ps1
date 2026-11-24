@@ -95,7 +95,9 @@ Describe 'UZ / EN matnlari' {
         $missing = @()
         foreach ($f in @('modules\ports.ps1', 'modules\env.ps1', 'lib\core.ps1')) {
             foreach ($m in [regex]::Matches([IO.File]::ReadAllText((Join-Path $script:Root $f)), "Get-TkText\s+\(?'([A-Z0-9_]+)'")) {
-                if (-not $defined.ContainsKey($m.Groups[1].Value)) { $missing += $m.Groups[1].Value }
+                $key = $m.Groups[1].Value
+                if ($key.EndsWith('_')) { continue }   # dinamik prefiks (P_CLS_ + sinf), pastda alohida tekshiriladi
+                if (-not $defined.ContainsKey($key)) { $missing += $key }
             }
         }
         # dinamik: P_CLS_*, P_R_*  (ports.ps1)

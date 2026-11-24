@@ -20,7 +20,14 @@ BeforeAll {
         $p.StandardInput.Close()
         $so = $p.StandardOutput.ReadToEndAsync()
         $se = $p.StandardError.ReadToEndAsync()
-        if (-not $p.WaitForExit(120000)) { try { $p.Kill() } catch { }; return [pscustomobject]@{ Code = -999; Text = 'TIMEOUT' } }
+        if (-not $p.WaitForExit(40000)) {
+            & taskkill.exe /T /F /PID $p.Id 2>&1 | Out-Null
+            [void]$so.Wait(5000); [void]$se.Wait(5000)
+            $partial = ''
+            if ($so.IsCompleted) { $partial += $so.Result }
+            if ($se.IsCompleted) { $partial += $se.Result }
+            return [pscustomobject]@{ Code = -999; Text = ('TIMEOUT. Partial output (last 3000 chars):' + [Environment]::NewLine + $partial.Substring([Math]::Max(0, $partial.Length - 3000))) }
+        }
         [pscustomobject]@{ Code = $p.ExitCode; Text = ($so.Result + $se.Result) }
     }
 }
@@ -47,7 +54,7 @@ Describe 'CLI' {
 Describe 'Menyu (stdin orqali)' {
     It 'noto''g''ri buyruqdan keyin 0 bilan chiqadi' {
         $r = Invoke-Tk '--lang EN --no-color' "99`r`n0`r`n"
-        $r.Code | Should -Be 0
+        $r.Code | Should -Be 0 -Because $r.Text
         $r.Text | Should -Match 'VOHID TOOLKIT'
         $r.Text | Should -Match '\[11\]'
         $r.Text | Should -Match 'Invalid command'
@@ -55,11 +62,11 @@ Describe 'Menyu (stdin orqali)' {
     }
     It 'kirish tugasa (EOF) cheksiz tsiklga tushmaydi' {
         $r = Invoke-Tk '--lang EN --no-color' ''
-        $r.Code | Should -Not -Be -999
+        $r.Code | Should -Not -Be -999 -Because $r.Text
     }
     It 'til tanlash lang.cfg ga yoziladi' {
         $r = Invoke-Tk '--no-color' "L`r`n2`r`n0`r`n"
-        $r.Code | Should -Be 0
+        $r.Code | Should -Be 0 -Because $r.Text
         (Get-Content -LiteralPath (Join-Path $env:LOCALAPPDATA 'VohidToolkit\lang.cfg') -TotalCount 1).Trim() | Should -Be 'EN'
     }
 }
@@ -135,7 +142,7 @@ Describe 'ports CLI' {
     }
     It 'menyu orqali: noto''g''ri port rad etiladi, keyin 0' {
         $r = Invoke-Tk '--lang EN --no-color' "10`r`n99999`r`n0`r`n0`r`n"
-        $r.Code | Should -Be 0
+        $r.Code | Should -Be 0 -Because $r.Text
         $r.Text | Should -Match 'whole number from 1 to 65535'
     }
 }
