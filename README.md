@@ -1,4 +1,4 @@
-# V-Shell (Vohid TOOLKIT v2.0)
+# V-Toolkit (Vohid TOOLKIT v2.0)
 
 Windows SysAdmin + Backend/DevOps CLI. UZ / EN.
 
