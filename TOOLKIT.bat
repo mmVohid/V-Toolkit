@@ -191,7 +191,7 @@ if /i "!choice!"=="exit" goto QUIT
 echo.
 call "!TK_C!" :ERR "!T_INVALID!"
 rem  timeout.exe yo'naltirilgan stdin bilan ishlamaydi -> ping bilan kutamiz
-ping -n 3 127.0.0.1 >nul 2>&1
+ping -n 2 127.0.0.1 >nul 2>&1
 set /a TK_BAD+=1
 if !TK_BAD! GEQ 20 goto QUIT
 goto MENU
