@@ -63,6 +63,7 @@ rem  Boshlang'ich sozlamalar
 rem ======================================================================
 :INIT
 set "TK_MOD=main"
+set "TK_EMPTY=0"
 
 rem --- Administrator holati (fltmc ishonchliroq; zaxira: net session) ---
 set "TK_ADMIN=0"
@@ -162,7 +163,13 @@ set /p "choice=  %C_C%>>%C_0% "
 
 set "choice=!choice:"=!"
 set "choice=!choice: =!"
-if not defined choice goto MENU
+if not defined choice (
+    rem  Kirish tugagan (EOF) bo'lsa cheksiz tsiklga tushmaslik uchun
+    set /a TK_EMPTY+=1
+    if !TK_EMPTY! GEQ 20 goto QUIT
+    goto MENU
+)
+set "TK_EMPTY=0"
 
 if "!choice!"=="1" goto T_CMD
 if "!choice!"=="2" goto T_PS
