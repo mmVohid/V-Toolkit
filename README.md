@@ -1,84 +1,78 @@
 # V-Toolkit (Vohid TOOLKIT)
 
-Windows SysAdmin + Backend/DevOps CLI. UZ / EN. License: MIT.
+**English** | [O'zbekcha](README.uz.md)
 
-## O'zbekcha
+Windows SysAdmin + Backend/DevOps CLI. UZ / EN interface. License: MIT.
 
-**Talab:** Windows 10/11, PowerShell 5.1+. Administrator huquqi faqat kerak bo'lganda so'raladi.
+## Requirements
 
-**Ishga tushirish:** `TOOLKIT.bat` ni oching yoki buyruq bilan:
+Windows 10/11, PowerShell 5.1+. Administrator rights are requested only when an action needs them.
 
-```
-TOOLKIT.bat [buyruq] [--lang UZ|EN] [--no-color]
-buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports env about
-```
+## Usage
 
-### Portlar va lokal servislar (`ports`)
+Run `TOOLKIT.bat`, or use the CLI form:
 
 ```
-  PORT    NOMI              HOLAT    PID      JARAYON            MANZIL
+TOOLKIT.bat [command] [--lang UZ|EN] [--no-color]
+commands: cmd ps path devmgr scan activation bios shutdown winget ports env about
+```
+
+## Ports and local services (`ports`)
+
+```
+  PORT    NAME              STATE    PID      PROCESS            BIND
   ----------------------------------------------------------------------
-  3000    Node / React      BO'SH    -        -                  -
-  5173    Vite              BAND     14320    node               127.0.0.1,::1
-  5432    PostgreSQL        BAND     5120     postgres           127.0.0.1
-  6379    Redis             BAND     8844     redis-server       0.0.0.0 !
-  8000    Django / FastAPI  BO'SH    -        -                  -
-  8080    HTTP (alt)        BAND     9912     com.docker.backend 0.0.0.0
+  3000    Node / React      FREE     -        -                  -
+  5173    Vite              LISTEN   14320    node               127.0.0.1,::1
+  5432    PostgreSQL        LISTEN   5120     postgres           127.0.0.1
+  6379    Redis             LISTEN   8844     redis-server       0.0.0.0 !
+  8000    Django / FastAPI  FREE     -        -                  -
+  8080    HTTP (alt)        LISTEN   9912     com.docker.backend 0.0.0.0
 ```
-*(namuna)*
+*(sample)*
 
-- Standart portlar: 3000, 5173, 5432, 6379, 8000, 8080. Qo'shimcha: `%LOCALAPPDATA%\VohidToolkit\ports.txt` (`PORT=Nom`).
-- Port `1-65535` oralig'ida tekshiriladi.
-- Tizim jarayonlari (`lsass`, `csrss`, `svchost`, `System` va h.k.) hamda Toolkit o'zi to'xtatilmaydi.
-- Windows servisi bo'lsa, jarayon emas, servis to'xtatiladi.
-- Docker/WSL/brauzer/IDE uchun port raqamini yozib tasdiqlash kerak.
-- O'chirishdan oldin PID va boshlanish vaqti qayta tekshiriladi.
+- Default ports: 3000, 5173, 5432, 6379, 8000, 8080. Extra ports: `%LOCALAPPDATA%\VohidToolkit\ports.txt` (`PORT=Name`).
+- The port is validated to `1-65535`.
+- Critical system processes (`lsass`, `csrss`, `svchost`, `System`, ...) and the toolkit itself are never stopped.
+- If a Windows service owns the port, the service is stopped, not the process.
+- Docker, WSL, browsers and IDEs require typing the port number to confirm.
+- PID and start time are re-verified right before stopping.
 
-### `.env` tekshiruvchi (`env`)
-
-```
-TOOLKIT.bat env [papka] [--ci]
-```
+## `.env` checker (`env`)
 
 ```
-  MISSING   2   namunada bor, .env da yo'q
+TOOLKIT.bat env [folder] [--ci]
+```
+
+```
+  MISSING   2   in the example, not in .env
       DATABASE_URL
       JWT_SECRET
 
-  EMPTY     1   namunada qiymat bor, .env da bo'sh
+  EMPTY     1   example has a value, .env is empty
       PORT
 
-  EXTRA     1   namunada yo'q (ortiqcha, ogohlantirish)
+  EXTRA     1   not in the example (extra, warning only)
       LEGACY_FLAG
 ```
-*(namuna)*
+*(sample)*
 
-- `.env.example` (yoki `.sample` / `.template`) bilan `.env` solishtiriladi: `MISSING`, `EMPTY`, `EXTRA`, `DUPLICATE`.
-- `EMPTY`: faqat namunada qiymat bor bo'lsa. Namunada bo'sh (`KEY=`) kalit ixtiyoriy hisoblanadi.
-- `EXTRA` faqat ogohlantirish; CI'ni yiqitmaydi.
-- **Qiymatlar hech qachon ekranga va logga chiqmaydi.**
-- Yetishmayotgan kalitlarni bo'sh qiymat bilan qo'shish mumkin (`.env.bak` zaxirasi va tasdiq bilan). `*.bak` ni `.gitignore` ga qo'shing.
-- `--ci`: savolsiz, rangsiz; chiqish kodi `0` toza, `1` muammo bor, `2` kirish xatosi.
+- Compares `.env` with `.env.example` (or `.sample` / `.template`): `MISSING`, `EMPTY`, `EXTRA`, `DUPLICATE`.
+- `EMPTY` is reported only when the example has a value. An empty key in the example (`KEY=`) is treated as optional.
+- `EXTRA` is a warning only and does not fail CI.
+- **Values are never displayed or logged.**
+- Missing keys can be appended with empty values (backup to `.env.bak` + confirmation). Add `*.bak` to `.gitignore`.
+- `--ci` is non-interactive and colorless. Exit code: `0` clean, `1` problems found, `2` input error.
 
-**Log:** `%LOCALAPPDATA%\VohidToolkit\logs\toolkit-YYYY-MM-DD.log` (14 kun; buyruq qatorlari va qiymatlar yozilmaydi).
+## Logs
 
-**Tuzilma:** `TOOLKIT.bat` (menyu) | `lib\` (umumiy yordamchilar) | `modules\*.bat` (UI + LANG_UZ/LANG_EN) + `modules\*.ps1` (mantiq).
+`%LOCALAPPDATA%\VohidToolkit\logs\toolkit-YYYY-MM-DD.log` (14-day retention; command lines and values are never logged).
 
-**Muhim:** `.bat` fayllar CRLF bilan saqlanishi shart (`.gitattributes` buni ta'minlaydi). Matnlarda `! % "` ishlatmang.
+## Layout
 
-## English
+`TOOLKIT.bat` (menu) | `lib\` (shared helpers) | `modules\*.bat` (UI + `LANG_UZ` / `LANG_EN`) + `modules\*.ps1` (logic).
 
-**Requirements:** Windows 10/11, PowerShell 5.1+. Administrator rights are requested only when an action needs them.
-
-**Usage:** run `TOOLKIT.bat`, or use the CLI form shown above.
-
-**Ports and local services (`ports`):** dashboard for common dev ports with PID, process name and bind address; port validated to `1-65535`; critical system processes and the toolkit itself are never stopped; Windows services are stopped as services; Docker/WSL/browsers/IDEs require typing the port number to confirm; the target is re-verified (PID and start time) right before stopping. Extra ports: `%LOCALAPPDATA%\VohidToolkit\ports.txt` (`PORT=Name`).
-
-**`.env` checker (`env`):** compares `.env` with `.env.example` and reports `MISSING`, `EMPTY` (only when the example has a value), `EXTRA` (warning only) and `DUPLICATE`. Values are never displayed or logged. Can append missing keys with empty values (backup + confirmation). `--ci` is non-interactive and returns exit code `0` (clean), `1` (problems), `2` (input error).
-
-**Logs:** `%LOCALAPPDATA%\VohidToolkit\logs\toolkit-YYYY-MM-DD.log` (14-day retention; no command lines or values are logged).
-
-**Layout:** `TOOLKIT.bat` (menu) | `lib\` (shared helpers) | `modules\*.bat` (UI + LANG_UZ/LANG_EN) + `modules\*.ps1` (logic).
+Note: `.bat` files must keep CRLF line endings (enforced by `.gitattributes`). Do not use `! % "` in UI strings.
 
 ## Roadmap
 
@@ -88,3 +82,5 @@ TOOLKIT.bat env [papka] [--ci]
 | v2.1 | `.env` checker |
 | v2.2 | Git changelog / release notes (Conventional Commits) |
 | v2.3 | Safe system cleaner (dry-run first) |
+
+> Keep `README.md` and `README.uz.md` in sync: update both in the same commit.
