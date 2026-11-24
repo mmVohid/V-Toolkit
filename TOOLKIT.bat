@@ -63,6 +63,8 @@ rem  Boshlang'ich sozlamalar
 rem ======================================================================
 :INIT
 set "TK_MOD=main"
+set "TK_EMPTY=0"
+set "TK_BAD=0"
 
 rem --- Administrator holati (fltmc ishonchliroq; zaxira: net session) ---
 set "TK_ADMIN=0"
@@ -162,7 +164,13 @@ set /p "choice=  %C_C%>>%C_0% "
 
 set "choice=!choice:"=!"
 set "choice=!choice: =!"
-if not defined choice goto MENU
+if not defined choice (
+    rem  Kirish tugagan (EOF) bo'lsa cheksiz tsiklga tushmaslik uchun
+    set /a TK_EMPTY+=1
+    if !TK_EMPTY! GEQ 20 goto QUIT
+    goto MENU
+)
+set "TK_EMPTY=0"
 
 if "!choice!"=="1" goto T_CMD
 if "!choice!"=="2" goto T_PS
@@ -182,7 +190,10 @@ if /i "!choice!"=="exit" goto QUIT
 
 echo.
 call "!TK_C!" :ERR "!T_INVALID!"
-timeout /t 2 /nobreak >nul
+rem  timeout.exe yo'naltirilgan stdin bilan ishlamaydi -> ping bilan kutamiz
+ping -n 2 127.0.0.1 >nul 2>&1
+set /a TK_BAD+=1
+if !TK_BAD! GEQ 20 goto QUIT
 goto MENU
 
 rem ======================================================================

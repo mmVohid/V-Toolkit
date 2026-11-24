@@ -4,6 +4,8 @@
 #  Chiqish kodlari: 0 = normal, 1 = xato, 20 = administrator bilan qayta ishga tushirish
 # ======================================================================
 #requires -Version 5.1
+[CmdletBinding()]
+param([switch]$NoRun)   # testlar uchun: funksiyalarni dot-source qilish, kirish nuqtasini ishga tushirmaslik
 $ErrorActionPreference = 'Stop'
 
 $script:TkMod = 'ports'
@@ -468,6 +470,8 @@ function Start-PortsModule {
         Wait-TkKey
     }
 }
+
+if ($NoRun) { return }
 
 try {
     if (-not (Get-Command Get-NetTCPConnection -ErrorAction SilentlyContinue)) {

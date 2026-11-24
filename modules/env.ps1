@@ -9,6 +9,8 @@
 #  Parser faqat "qiymat bormi" (bool) ni eslab qoladi.
 # ======================================================================
 #requires -Version 5.1
+[CmdletBinding()]
+param([switch]$NoRun)   # testlar uchun: funksiyalarni dot-source qilish, kirish nuqtasini ishga tushirmaslik
 $ErrorActionPreference = 'Stop'
 
 $script:TkMod = 'env'
@@ -322,6 +324,8 @@ function Start-EnvInteractive([string]$Base) {
 }
 
 # --- Kirish nuqtasi ---------------------------------------------------------------------------
+if ($NoRun) { return }
+
 try {
     Write-TkLog 'INFO' 'module start'
     $ci = ($env:TK_CI -eq '1')

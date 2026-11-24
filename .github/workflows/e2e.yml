@@ -1,0 +1,44 @@
+name: e2e
+
+on:
+  push:
+    branches: [main, ci/e2e]
+  pull_request:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Pester 5
+        shell: powershell
+        run: |
+          Install-Module Pester -MinimumVersion 5.5.0 -Force -SkipPublisherCheck -Scope CurrentUser
+
+      - name: Run tests (Windows PowerShell 5.1)
+        shell: powershell
+        run: |
+          Import-Module Pester -MinimumVersion 5.5.0
+          $cfg = New-PesterConfiguration
+          $cfg.Run.Path = 'tests'
+          $cfg.Run.Exit = $true
+          $cfg.Output.Verbosity = 'Detailed'
+          $cfg.TestResult.Enabled = $true
+          $cfg.TestResult.OutputPath = 'testResults.xml'
+          Invoke-Pester -Configuration $cfg
+
+      - name: Collect logs
+        if: always()
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $d = Join-Path $env:LOCALAPPDATA 'VohidToolkit'
+          if (Test-Path $d) { Copy-Item $d (Join-Path artifacts 'VohidToolkit') -Recurse -Force }
+          if (Test-Path testResults.xml) { Copy-Item testResults.xml artifacts }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-results
+          path: artifacts
