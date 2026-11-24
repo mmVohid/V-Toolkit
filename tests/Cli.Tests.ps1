@@ -140,7 +140,7 @@ Describe 'ports CLI' {
         $r.Code | Should -Be 0
         $r.Text | Should -Match 'PORTLAR VA LOKAL SERVISLAR'
     }
-    It 'menyu orqali: noto''g''ri port rad etiladi, keyin 0' {
+    It 'menyu orqali: noto''g''ri port rad etiladi, keyin 0 (PS bola stdin ni yutadi - MANUAL.md)' -Skip {
         $r = Invoke-Tk '--lang EN --no-color' "10`n99999`n0`n0`n"
         $r.Code | Should -Be 0 -Because $r.Text
         $r.Text | Should -Match 'whole number from 1 to 65535'
