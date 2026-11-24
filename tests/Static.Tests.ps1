@@ -56,7 +56,7 @@ Describe 'Batch yorliqlari' {
     It 'core.bat chaqiruvlari mavjud yorliqlarga ishora qiladi' {
         $core = Get-Labels (Join-Path $script:Root 'lib\core.bat')
         $missing = @()
-        foreach ($f in @('TOOLKIT.bat', 'modules\ports.bat', 'modules\env.bat')) {
+        foreach ($f in @('TOOLKIT.bat', 'modules\ports.bat', 'modules\env.bat', 'modules\changelog.bat')) {
             $text = [IO.File]::ReadAllText((Join-Path $script:Root $f))
             foreach ($m in [regex]::Matches($text, '"!TK_C!"\s+:([A-Za-z0-9_]+)')) {
                 $t = $m.Groups[1].Value.ToUpper()
@@ -68,7 +68,7 @@ Describe 'Batch yorliqlari' {
 }
 
 Describe 'UZ / EN matnlari' {
-    It '<Name>: LANG_UZ va LANG_EN kalitlari bir xil' -ForEach (@('TOOLKIT.bat', 'lib\core.bat', 'modules\ports.bat', 'modules\env.bat') | ForEach-Object { @{ Name = $_ } }) {
+    It '<Name>: LANG_UZ va LANG_EN kalitlari bir xil' -ForEach (@('TOOLKIT.bat', 'lib\core.bat', 'modules\ports.bat', 'modules\env.bat', 'modules\changelog.bat') | ForEach-Object { @{ Name = $_ } }) {
         $text = [IO.File]::ReadAllText((Join-Path $script:Root $Name))
         $uz = @(Get-LangKeys $text 'UZ'); $en = @(Get-LangKeys $text 'EN')
         $uz.Count | Should -BeGreaterThan 0
@@ -76,11 +76,11 @@ Describe 'UZ / EN matnlari' {
     }
     It 'ishlatilgan T_ matnlari aniqlangan' {
         $defined = @{}
-        foreach ($f in @('TOOLKIT.bat', 'lib\core.bat', 'modules\ports.bat', 'modules\env.bat')) {
+        foreach ($f in @('TOOLKIT.bat', 'lib\core.bat', 'modules\ports.bat', 'modules\env.bat', 'modules\changelog.bat')) {
             foreach ($m in [regex]::Matches([IO.File]::ReadAllText((Join-Path $script:Root $f)), '(?m)^set "(T_[A-Z0-9_]+)=')) { $defined[$m.Groups[1].Value] = $true }
         }
         $undefined = @()
-        foreach ($f in @('TOOLKIT.bat', 'modules\ports.bat', 'modules\env.bat')) {
+        foreach ($f in @('TOOLKIT.bat', 'modules\ports.bat', 'modules\env.bat', 'modules\changelog.bat')) {
             foreach ($m in [regex]::Matches([IO.File]::ReadAllText((Join-Path $script:Root $f)), '!(T_[A-Z0-9_]+)!')) {
                 if (-not $defined.ContainsKey($m.Groups[1].Value)) { $undefined += $m.Groups[1].Value }
             }
@@ -89,19 +89,20 @@ Describe 'UZ / EN matnlari' {
     }
     It 'ps1 dagi Get-TkText kalitlari bat da aniqlangan' {
         $defined = @{}
-        foreach ($f in @('lib\core.bat', 'modules\ports.bat', 'modules\env.bat')) {
+        foreach ($f in @('lib\core.bat', 'modules\ports.bat', 'modules\env.bat', 'modules\changelog.bat')) {
             foreach ($m in [regex]::Matches([IO.File]::ReadAllText((Join-Path $script:Root $f)), '(?m)^set "T_([A-Z0-9_]+)=')) { $defined[$m.Groups[1].Value] = $true }
         }
         $missing = @()
-        foreach ($f in @('modules\ports.ps1', 'modules\env.ps1', 'lib\core.ps1')) {
+        foreach ($f in @('modules\ports.ps1', 'modules\env.ps1', 'modules\changelog.ps1', 'lib\core.ps1')) {
             foreach ($m in [regex]::Matches([IO.File]::ReadAllText((Join-Path $script:Root $f)), "Get-TkText\s+\(?'([A-Z0-9_]+)'")) {
                 $key = $m.Groups[1].Value
                 if ($key.EndsWith('_')) { continue }   # dinamik prefiks (P_CLS_ + sinf), pastda alohida tekshiriladi
                 if (-not $defined.ContainsKey($key)) { $missing += $key }
             }
         }
-        # dinamik: P_CLS_*, P_R_*  (ports.ps1)
-        foreach ($d in 'P_CLS_PROTECTED', 'P_CLS_SERVICE', 'P_CLS_WARN', 'P_CLS_NORMAL', 'P_R_SYSTEM', 'P_R_SELF', 'P_R_SHARED', 'P_R_WARN') {
+        # dinamik: P_CLS_*, P_R_* (ports.ps1), C_S_* (changelog.ps1)
+        foreach ($d in 'P_CLS_PROTECTED', 'P_CLS_SERVICE', 'P_CLS_WARN', 'P_CLS_NORMAL', 'P_R_SYSTEM', 'P_R_SELF', 'P_R_SHARED', 'P_R_WARN',
+                   'C_S_BREAKING', 'C_S_FEAT', 'C_S_FIX', 'C_S_PERF', 'C_S_REFACTOR', 'C_S_DOCS', 'C_S_TEST', 'C_S_CI', 'C_S_BUILD', 'C_S_STYLE', 'C_S_CHORE', 'C_S_OTHER') {
             if (-not $defined.ContainsKey($d)) { $missing += $d }
         }
         $missing | Should -BeNullOrEmpty

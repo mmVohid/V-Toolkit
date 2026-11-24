@@ -64,6 +64,30 @@ TOOLKIT.bat env [folder] [--ci]
 - Missing keys can be appended with empty values (backup to `.env.bak` + confirmation). Add `*.bak` to `.gitignore`.
 - `--ci` is non-interactive and colorless. Exit code: `0` clean, `1` problems found, `2` input error.
 
+## Git changelog (`changelog`)
+
+```
+TOOLKIT.bat changelog [folder] [--ci]
+```
+
+```
+## Unreleased - 2026-11-24
+
+### Features
+
+- **ports:** watched-ports dashboard (`a1b2c3d`)
+
+### Fixes
+
+- avoid timeout.exe with redirected stdin (`d4e5f6a`)
+```
+
+- Range: from the last tag to `HEAD` (whole history if there is no tag). If `HEAD` is exactly on a tag, the previous tag up to that tag.
+- Groups [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `ci`, `build`, `style`, `chore`; `!` = breaking). Anything else goes to **Other**.
+- Interactive: previews, then asks before creating `RELEASE_NOTES.md`; if it exists, the new block is prepended and the old content is kept.
+- `--ci` prints clean Markdown to stdout and writes no file. Exit code: `0` ok, `2` input error (no git / not a repository).
+- Only commit subjects are read.
+
 ## Logs
 
 `%LOCALAPPDATA%\VohidToolkit\logs\toolkit-YYYY-MM-DD.log` (14-day retention; command lines and values are never logged).
@@ -80,7 +104,7 @@ Note: `.bat` files must keep CRLF line endings (enforced by `.gitattributes`). D
 |---|---|
 | v2.0 | Modular core, lazy admin, ports manager |
 | v2.1 | `.env` checker |
-| v2.2 | Git changelog / release notes (Conventional Commits) |
+| v2.2 | Git changelog / release notes (Conventional Commits) - in progress |
 | v2.3 | Safe system cleaner (dry-run first) |
 
 > Keep `README.md` and `README.uz.md` in sync: update both in the same commit.

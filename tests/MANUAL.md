@@ -29,6 +29,12 @@ CI (`windows-latest`) administrator sifatida ishlaydi va interaktiv UAC yo'q. Qu
 - [ ] Bir nechta `.env*` fayl bor papkada tanlov menyusi.
 - [ ] Oxirgi papka keyingi safar eslab qolinadi.
 
+## 4b. Git changelog
+- [ ] Teg bor repoda `changelog <papka>`: faqat oxirgi tegdan keyingi commitlar, bo'limlar tartibi to'g'ri.
+- [ ] Interaktiv: `RELEASE_NOTES.md` yo'q bo'lsa ASK_YN -> yaratiladi; bor bo'lsa "boshiga qo'shish" tasdig'i, eski mazmun saqlanadi.
+- [ ] Git o'rnatilmagan kompyuterda / repo bo'lmagan papkada tushunarli xato (kod 2).
+- [ ] Kirill/lotin sarlavhali commitlar `RELEASE_NOTES.md` da to'g'ri ko'rinadi (UTF-8).
+
 ## 5. Xavfli amallar (bekor qilish yo'lini tekshiring)
 - [ ] [8] Shutdown: 30 soniya ichida `C` bosilsa bekor qilinadi (`shutdown /a`).
 - [ ] [7] BIOS: tasdiqdan keyin 10 soniyalik hisoblagich, `C` bilan bekor.

@@ -10,7 +10,7 @@ rem    lib\init.ps1         log papkasi, eski loglarni tozalash, sana
 rem    modules\*.bat/.ps1   modullar: .bat = UI + LANG_UZ/LANG_EN, .ps1 = mantiq
 rem
 rem  CLI:  TOOLKIT.bat [buyruq] [--lang UZ|EN] [--no-color]
-rem        buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports env about
+rem        buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports env changelog about
 rem        env:       TOOLKIT.bat env [papka] [--ci]   (--ci: chiqish kodi 0/1, rangsiz, savolsiz)
 rem
 rem  Matn qoidasi: ASCII; matn ichida  !  %  "  bo'lmasin.
@@ -154,6 +154,7 @@ echo     %C_D%!T_G3!%C_0%
 echo     %C_G%[9]%C_0%   !T_M9!
 echo     %C_G%[10]%C_0%  !T_M10!
 echo     %C_G%[11]%C_0%  !T_M11!
+echo     %C_G%[12]%C_0%  !T_M12!
 echo.
 echo   %C_D%------------------------------------------------------------------------%C_0%
 echo     %C_C%[A]%C_0% !T_MA!      %C_C%[L]%C_0% !T_ML!      %C_C%[0]%C_0% !T_M0!
@@ -183,6 +184,7 @@ if "!choice!"=="8" goto T_OFF
 if "!choice!"=="9" goto T_WG
 if "!choice!"=="10" goto T_PORT
 if "!choice!"=="11" goto T_DOTENV
+if "!choice!"=="12" goto T_CHLOG
 if /i "!choice!"=="a" goto T_ABOUT
 if /i "!choice!"=="l" goto T_LANG
 if "!choice!"=="0" goto QUIT
@@ -212,6 +214,7 @@ if /i "!TK_CMD!"=="shutdown" goto T_OFF
 if /i "!TK_CMD!"=="winget" goto T_WG
 if /i "!TK_CMD!"=="ports" goto T_PORT
 if /i "!TK_CMD!"=="env" goto T_DOTENV
+if /i "!TK_CMD!"=="changelog" goto T_CHLOG
 if /i "!TK_CMD!"=="about" goto T_ABOUT
 echo.
 call "!TK_C!" :ERR "!T_UNKNOWN! !TK_CMD!"
@@ -369,6 +372,18 @@ rem  [11] .env tekshiruvchi  (modules\env.bat + env.ps1)
 rem  Chiqish kodi: 0 = toza, 1 = muammo bor, 2 = kirish xatosi
 rem  CLI (oneshot) rejimda shu kod bilan chiqiladi.
 rem ======================================================================
+:T_CHLOG
+call "!TK_ROOT!\modules\changelog.bat"
+set "RC=!errorlevel!"
+set "TK_MOD=main"
+if defined TK_ONESHOT (
+    call "!TK_C!" :LOG INFO "exit rc=!RC!"
+    popd
+    exit /b !RC!
+)
+if "!RC!"=="0" goto BACK
+goto PAUSE_BACK
+
 :T_DOTENV
 call "!TK_ROOT!\modules\env.bat"
 set "RC=!errorlevel!"
@@ -454,13 +469,14 @@ set "T_M8=Kompyuterni o'chirish - 30 soniyadan keyin"
 set "T_M9=Barcha dasturlarni yangilash (Winget)"
 set "T_M10=Portlar va lokal servislar"
 set "T_M11=.env tekshiruvchi (.env.example bilan solishtirish)"
+set "T_M12=Git changelog / release notes"
 set "T_MA=Haqida"
 set "T_ML=Til"
 set "T_M0=Chiqish"
 set "T_ADMIN_NOTE=Administrator huquqi kerak (kerak bo'lganda so'raladi)."
 set "T_INVALID=Noto'g'ri buyruq. Qayta urinib ko'ring."
 set "T_UNKNOWN=Noma'lum buyruq:"
-set "T_USAGE=Buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports env about   Parametr: --lang UZ/EN  --no-color  --ci"
+set "T_USAGE=Buyruqlar: cmd ps path devmgr scan activation bios shutdown winget ports env changelog about   Parametr: --lang UZ/EN  --no-color  --ci"
 set "T_SCAN1=DISM: tizim obrazini tiklash..."
 set "T_SCAN2=SFC: Windows fayllarini tekshirish..."
 set "T_SCAN_DONE=Skanerlash va tiklash yakunlandi."
@@ -501,13 +517,14 @@ set "T_M8=Shutdown computer - in 30 seconds"
 set "T_M9=Update all software (Winget)"
 set "T_M10=Ports and local services"
 set "T_M11=.env checker (compare with .env.example)"
+set "T_M12=Git changelog / release notes"
 set "T_MA=About"
 set "T_ML=Language"
 set "T_M0=Exit"
 set "T_ADMIN_NOTE=Requires administrator rights (asked when needed)."
 set "T_INVALID=Invalid command. Please try again."
 set "T_UNKNOWN=Unknown command:"
-set "T_USAGE=Commands: cmd ps path devmgr scan activation bios shutdown winget ports env about   Options: --lang UZ/EN  --no-color  --ci"
+set "T_USAGE=Commands: cmd ps path devmgr scan activation bios shutdown winget ports env changelog about   Options: --lang UZ/EN  --no-color  --ci"
 set "T_SCAN1=DISM: repairing system image..."
 set "T_SCAN2=SFC: scanning Windows system files..."
 set "T_SCAN_DONE=Scan and repair completed."

@@ -64,6 +64,30 @@ TOOLKIT.bat env [papka] [--ci]
 - Yetishmayotgan kalitlarni bo'sh qiymat bilan qo'shish mumkin (`.env.bak` zaxirasi va tasdiq bilan). `*.bak` ni `.gitignore` ga qo'shing.
 - `--ci` savolsiz va rangsiz ishlaydi. Chiqish kodi: `0` toza, `1` muammo bor, `2` kirish xatosi.
 
+## Git changelog (`changelog`)
+
+```
+TOOLKIT.bat changelog [papka] [--ci]
+```
+
+```
+## Unreleased - 2026-11-24
+
+### Features
+
+- **ports:** watched-ports dashboard (`a1b2c3d`)
+
+### Fixes
+
+- avoid timeout.exe with redirected stdin (`d4e5f6a`)
+```
+
+- Oraliq: oxirgi tegdan `HEAD` gacha (teg bo'lmasa - butun tarix). `HEAD` aynan tegda tursa, oldingi tegdan shu teggacha.
+- [Conventional Commits](https://www.conventionalcommits.org/) bo'yicha guruhlaydi (`feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `ci`, `build`, `style`, `chore`; `!` = buzuvchi o'zgarish). Qolganlari **Boshqalar** ga tushadi.
+- Interaktiv rejim: avval ko'rsatadi, `RELEASE_NOTES.md` yaratishdan oldin so'raydi; fayl bor bo'lsa, yangi blok boshiga qo'shiladi, eski mazmun saqlanadi.
+- `--ci` toza Markdown ni stdout ga chiqaradi, fayl yozmaydi. Chiqish kodi: `0` ok, `2` kirish xatosi (git yo'q / repozitoriy emas).
+- Faqat commit sarlavhalari o'qiladi.
+
 ## Log
 
 `%LOCALAPPDATA%\VohidToolkit\logs\toolkit-YYYY-MM-DD.log` (14 kun saqlanadi; buyruq qatorlari va qiymatlar yozilmaydi).
@@ -80,7 +104,7 @@ Eslatma: `.bat` fayllar CRLF qator oxiri bilan saqlanishi shart (`.gitattributes
 |---|---|
 | v2.0 | Modulli poydevor, lazy admin, port menejeri |
 | v2.1 | `.env` tekshiruvchi |
-| v2.2 | Git changelog / release notes (Conventional Commits) |
+| v2.2 | Git changelog / release notes (Conventional Commits) - jarayonda |
 | v2.3 | Xavfsiz tizim tozalash (avval dry-run) |
 
 > `README.md` va `README.uz.md` ni sinxron saqlang: ikkalasini bitta commitda yangilang.
